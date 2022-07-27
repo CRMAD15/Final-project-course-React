@@ -8,12 +8,12 @@ const { SourceMapDevToolPlugin } = require('webpack'); // Para conocer el Source
 
 // Configuración del puerto
 
-const port = process.env || 3000;
+const port = process.env.PORT || 3000;
 
 // Exportar configuración de webpack
 
 module.exports = {
-    entry: './src/index.js',
+    entry: './src/index.jsx',
     output: {
         path: path.join(__dirname, '/dist'),
         filename: 'bundle.[hash].js',
@@ -22,28 +22,27 @@ module.exports = {
     context: path.resolve(__dirname),
     devServer: {
         port,
-        inline: true,
         historyApiFallback: true,
     },
 
     devtool: 'eval-source-map',
-    modules: {
+    module: {
         rules: [
-            // Reglas para los archivos de Js y Jsx
-            // Tienen que pasar el LINTING para poder pasar
+            // Reglas para archivos JS y JSX
+            // Tienen que pasar previamente a la build, por el linting
             {
                 enforce: 'pre',
-                test: /(\.js|\.jsx)$/,
+                test: /(\.js|.jsx)$/,
                 exclude: /node_modules/,
                 use: [
-                    'eslint-loader',
+                    // 'eslint-loader',
                     'source-map-loader',
                 ],
             },
-            // Reglas para los archivos de Js y Jsx
-            // Reglas de babel para ES y Jsx
+            // Reglas para archivos JS y JSX
+            // Babel ES y JSX
             {
-                test: /\.(js|jsx)$/,
+                test: /(\.js|.jsx)$/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
@@ -53,39 +52,29 @@ module.exports = {
                             '@babel/react',
                         ],
                     },
-
                 },
             },
-            /* Reglas para archivos CSS y SCSS para minificarlos y cargarlos en
-             la solución final o bundle */
-
+            // Reglas para archivos SCCS, SASS y CSS
+            // Sirve para minificarlos en un solo archivo y una línea
             {
-
                 test: /(\.css|\.scss|\.sass)$/,
-                loader: [
-                    MiniCssExtractPlugin.loader,
-                    'css-loader',
-                    'sass-loader',
-
+                use: [
+                    { loader: MiniCssExtractPlugin.loader },
+                    { loader: 'css-loader' },
+                    { loader: 'sass-loader' },
                 ],
             },
-            // Reglas para archivos de imagenes
+            // Reglas para los archivos de imágenes
             {
-                test: /\.(png|jpe?g|gif)$/,
-                use: [
-                    {
-                        loader: 'file-loader',
-                    },
-                ],
+                test: /\.(png|jpe?g|gif)$/i,
+                use: { loader: 'file-loader' },
             },
         ],
-
     },
     plugins: [
-        // template HTML
         new HtmlWebpackPlugin(
             {
-                template: './index.html',
+                template: './public/index.html',
             },
         ),
         new MiniCssExtractPlugin(
@@ -98,12 +87,14 @@ module.exports = {
                 filename: '[file].map',
             },
         ),
-
     ],
     resolve: {
         extensions: ['.js', '.jsx', '.css', '.scss', '.sass'],
         modules: [
             'node_modules',
         ],
+        alias: {
+            'react-redux': path.join(__dirname, '/node_modules/react-redux/dist/react-redux.min'),
+        },
     },
 };

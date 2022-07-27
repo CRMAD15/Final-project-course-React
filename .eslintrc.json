@@ -36,6 +36,7 @@
     "rules": {
         "indent": 0,
         "react/prop-types": 0,
-        "linebreak-style": 0
+        "linebreak-style": 0,
+        "arrow-body-style": 0
     }
 }
